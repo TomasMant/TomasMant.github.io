@@ -175,171 +175,164 @@
         </section>
     </main>
  
-    <section class="py-5 bg-light">
-        <div class="container">
-            <h2 class="text-center mb-4">Comparación de Tipos de Amortiguamiento</h2>
-            <p class="text-center">
-                Visualización del desplazamiento \( x(t) \) en un sistema masa-resorte para distintos coeficientes de amortiguamiento.
-            </p>
- 
-            <div class="d-flex justify-content-center mb-3">
-                <button id="btnSub" class="btn btn-primary me-2">Subamortiguado</button>
-                <button id="btnCritico" class="btn btn-success me-2">Críticamente Amortiguado</button>
-                <button id="btnSobre" class="btn btn-danger">Sobreamortiguado</button>
-            </div>
- 
-            <div class="d-flex justify-content-center">
-                <canvas
-                    id="amortiguamientoCanvas"
-                    width="700"
-                    height="300"
-                    style="border: 1px solid #ccc; background-color: white"
-                ></canvas>
-            </div>
- 
-            <p class="text-center mt-3">
-                <span style="color: #007bff;">● Subamortiguado</span> &nbsp;
-                <span style="color: #28a745;">● Críticamente amortiguado</span> &nbsp;
-                <span style="color: #dc3545;">● Sobreamortiguado</span>
-            </p>
+   <section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-4">Comparación de Tipos de Amortiguamiento</h2>
+        <p class="text-center">
+            Visualización del desplazamiento \( x(t) \) en un sistema masa-resorte para distintos coeficientes de amortiguamiento.
+        </p>
+
+        <div class="d-flex justify-content-center mb-3">
+            <button id="btnSub" class="btn btn-primary me-2">Subamortiguado</button>
+            <button id="btnCritico" class="btn btn-success me-2">Críticamente Amortiguado</button>
+            <button id="btnSobre" class="btn btn-danger">Sobreamortiguado</button>
         </div>
-    </section>
- 
-    <script>
-        const canvas = document.getElementById("amortiguamientoCanvas");
-        const ctx = canvas.getContext("2d");
- 
-        const A = 100; // Amplitud base
-        const omega = 2; // frecuencia natural
- 
-        let t = 0;
-        const dt = 0.02;
-        let selectedMode = "sub"; // sub, critico, sobre
- 
-        // Funciones para cada tipo de amortiguamiento
-        function subamortiguado(t) {
-            const lambda = 0.5;
-            const mu = Math.sqrt(omega ** 2 - lambda ** 2);
-            return A * Math.exp(-lambda * t) * Math.cos(mu * t);
-        }
- 
-        function critico(t) {
-            const lambda = omega;
-            return A * 1.5 * (1 + lambda * t) * Math.exp(-lambda * t);
-        }
- 
-        function sobreamortiguado(t) {
-            const lambda = 3;
-            const discriminante = lambda ** 2 - omega ** 2;
-            const m1 = -lambda + Math.sqrt(discriminante);
-            const m2 = -lambda - Math.sqrt(discriminante);
-            return A * 1.2 * (0.7 * Math.exp(m1 * t) + 0.3 * Math.exp(m2 * t));
-        }
- 
-        // Escala vertical según modo
-        function getScaleY(mode) {
-            if (mode === "sub") return 1;
-            if (mode === "critico") return 1.5;
-            if (mode === "sobre") return 3;
-            return 1;
-        }
- 
-        // Dibujar desplazamiento x(t)
-        function drawDisplacement(x, yBase, scaleY, color) {
-            // Clear canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
- 
-            // Ejes
-            ctx.strokeStyle = "#888";
-            ctx.beginPath();
-            ctx.moveTo(50, 20);
-            ctx.lineTo(50, canvas.height - 20);
-            ctx.lineTo(canvas.width - 20, canvas.height - 20);
-            ctx.stroke();
- 
-            // Línea base (equilibrio)
-            ctx.strokeStyle = "#000";
-            ctx.beginPath();
-            ctx.moveTo(50, yBase);
-            ctx.lineTo(canvas.width - 20, yBase);
-            ctx.stroke();
- 
-            // Dibuja el punto desplazado
-            ctx.fillStyle = color;
-            const cx = 50 + x * 200;
-            const cy = yBase - scaleY * yBase * 0.6; // base para escala vertical
-            ctx.beginPath();
-            ctx.arc(cx, cy, 10, 0, 2 * Math.PI);
-            ctx.fill();
- 
-            // Texto descriptivo
-            ctx.fillStyle = "#000";
-            ctx.font = "16px Arial";
-            ctx.fillText(`t = ${x.toFixed(2)} s`, 500, 30);
-        }
- 
-        // Animación principal
-        function animate() {
-            let x, scaleY;
-            scaleY = getScaleY(selectedMode);
- 
-            if (selectedMode === "sub") {
-                x = subamortiguado(t);
-                drawGraph(x, "blue");
-            } else if (selectedMode === "critico") {
-                x = critico(t);
-                drawGraph(x, "green");
-            } else if (selectedMode === "sobre") {
-                x = sobreamortiguado(t);
-                drawGraph(x, "red");
+
+        <div class="d-flex justify-content-center">
+            <canvas
+                id="amortiguamientoCanvas"
+                width="700"
+                height="300"
+                style="border: 1px solid #ccc; background-color: white"
+            ></canvas>
+        </div>
+
+        <p class="text-center mt-3">
+            <span style="color: #007bff;">● Subamortiguado</span> &nbsp;
+            <span style="color: #28a745;">● Críticamente amortiguado</span> &nbsp;
+            <span style="color: #dc3545;">● Sobreamortiguado</span>
+        </p>
+    </div>
+</section>
+
+<script>
+    const canvas = document.getElementById("amortiguamientoCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const A = 100;
+    const omega = 2;
+
+    let t = 0;
+    const dt = 0.02;
+    let selectedMode = "sub";
+    let points = [];
+
+    // Funciones de amortiguamiento
+    function subamortiguado(t) {
+        const lambda = 0.5;
+        const mu = Math.sqrt(omega ** 2 - lambda ** 2);
+        return A * Math.exp(-lambda * t) * Math.cos(mu * t);
+    }
+
+    function critico(t) {
+        const lambda = omega;
+        return A * (1 + t) * Math.exp(-lambda * t);
+    }
+
+    function sobreamortiguado(t) {
+        const lambda = 3;
+        const disc = lambda ** 2 - omega ** 2;
+        const m1 = -lambda + Math.sqrt(disc);
+        const m2 = -lambda - Math.sqrt(disc);
+        const C1 = 0.7, C2 = 0.3;
+        return A * (C1 * Math.exp(m1 * t) + C2 * Math.exp(m2 * t));
+    }
+
+    // Escala vertical según modo
+    function getScaleY(mode) {
+        if (mode === "sub") return 1;
+        if (mode === "critico") return 1.5;
+        if (mode === "sobre") return 3;
+        return 1;
+    }
+
+    // Función para dibujar curva y punto
+    function drawGraph(points, mode) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const yBase = canvas.height / 2;
+        const scaleY = getScaleY(mode);
+
+        // Línea de equilibrio
+        ctx.strokeStyle = "#000";
+        ctx.beginPath();
+        ctx.moveTo(0, yBase);
+        ctx.lineTo(canvas.width, yBase);
+        ctx.stroke();
+
+        // Dibujar curva
+        ctx.beginPath();
+        for (let i = 0; i < points.length; i++) {
+            const px = (points[i].t / 10) * (canvas.width - 100) + 50;
+            const py = yBase - scaleY * points[i].x;
+
+            if (i === 0) {
+                ctx.moveTo(px, py);
+            } else {
+                ctx.lineTo(px, py);
             }
- 
-            t += dt;
-            if (t > 10) t = 0;
-            requestAnimationFrame(animate);
         }
- 
-        // Dibuja gráfica desplazamiento en función de t
-        function drawGraph(x, color) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
- 
-            // Dibujar línea de equilibrio
-            const yBase = canvas.height / 2;
-            ctx.strokeStyle = "#000";
-            ctx.beginPath();
-            ctx.moveTo(0, yBase);
-            ctx.lineTo(canvas.width, yBase);
-            ctx.stroke();
- 
-            // Dibujar punto de desplazamiento
-            ctx.fillStyle = color;
-            // Centro horizontal progresivo para animar
-            const cx = (t / 10) * (canvas.width - 100) + 50;
-            // Ajustar escala vertical con getScaleY
-            const scaleY = getScaleY(selectedMode);
-            const cy = yBase - scaleY * x;
- 
-            ctx.beginPath();
-            ctx.arc(cx, cy, 8, 0, 2 * Math.PI);
-            ctx.fill();
+        ctx.strokeStyle = mode === "sub" ? "blue" : mode === "critico" ? "green" : "red";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Dibujar el punto actual
+        const last = points[points.length - 1];
+        const cx = (last.t / 10) * (canvas.width - 100) + 50;
+        const cy = yBase - scaleY * last.x;
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, 6, 0, 2 * Math.PI);
+        ctx.fillStyle = ctx.strokeStyle;
+        ctx.fill();
+    }
+
+    // Animación principal
+    function animate() {
+        let x;
+
+        if (selectedMode === "sub") {
+            x = subamortiguado(t);
+        } else if (selectedMode === "critico") {
+            x = critico(t);
+        } else if (selectedMode === "sobre") {
+            x = sobreamortiguado(t);
         }
- 
-        // Botones para cambiar modo
-        document.getElementById("btnSub").addEventListener("click", () => {
-            selectedMode = "sub";
+
+        points.push({ t: t, x: x });
+
+        if (t > 10) {
             t = 0;
-        });
-        document.getElementById("btnCritico").addEventListener("click", () => {
-            selectedMode = "critico";
-            t = 0;
-        });
-        document.getElementById("btnSobre").addEventListener("click", () => {
-            selectedMode = "sobre";
-            t = 0;
-        });
- 
-        animate();
-    </script>
+            points = [];
+        }
+
+        drawGraph(points, selectedMode);
+        t += dt;
+        requestAnimationFrame(animate);
+    }
+
+    // Botones para cambiar modo
+    document.getElementById("btnSub").addEventListener("click", () => {
+        selectedMode = "sub";
+        t = 0;
+        points = [];
+    });
+
+    document.getElementById("btnCritico").addEventListener("click", () => {
+        selectedMode = "critico";
+        t = 0;
+        points = [];
+    });
+
+    document.getElementById("btnSobre").addEventListener("click", () => {
+        selectedMode = "sobre";
+        t = 0;
+        points = [];
+    });
+
+    animate();
+</script>
+
  
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
